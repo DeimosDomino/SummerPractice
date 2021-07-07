@@ -116,14 +116,14 @@ public class Graph {
         return this.matrix.size();
     }
 
-    public ArrayList<Integer> makeStartArrayList(Vertex start) {
-        ArrayList<Integer> list = new ArrayList<Integer>();
+    public TreeMap<Integer, Integer> makeStartArrayList(Vertex start) {
+        TreeMap<Integer, Integer> list = new TreeMap<Integer, Integer>();
         Set<Vertex> nodes = this.matrix.keySet();
         if(nodes != null){
             Iterator<Vertex> iterator = nodes.iterator();
             while (iterator.hasNext()) {
                 Vertex vertex = iterator.next();
-                list.add(vertex.getId(), vertex.equals(start) ? 0 : Integer.MAX_VALUE);
+                list.put(vertex.getId(), vertex.equals(start) ? 0 : Integer.MAX_VALUE);
             }
         }
         return list;
@@ -171,42 +171,45 @@ public class Graph {
             }
         }
     }
-
-    public ArrayList<Boolean> makeVisitedList(Vertex start){
-        ArrayList<Boolean> visited = new ArrayList<Boolean>();
-        for(int i = 0; i<this.matrix.size(); i++){
-            visited.add(i, i == start.getId() ? true : false);
+    // переделать под map
+    public TreeMap<Integer, Boolean> makeVisitedList(Vertex start){
+        TreeMap<Integer, Boolean>  visited = new TreeMap<Integer, Boolean> ();
+        Set<Vertex> vertexes = this.matrix.keySet();
+        for(Vertex i : vertexes){
+            visited.put(i.getId(), i.getId() == start.getId() ? true : false);
         }
         return visited;
     }
-
-    public ArrayList<String> makePathList(Vertex start){
-        ArrayList<String> path = new ArrayList<String>();
-        for(int i = 0; i<this.matrix.size(); i++){
-            path.add(i, i == start.getId() ? "" : Integer.toString(start.getId()));
+    // переделать под map
+    public TreeMap<Integer, String> makePathList(Vertex start){
+        TreeMap<Integer, String>  path = new TreeMap<Integer, String>();
+        Set<Vertex> vertexes = this.matrix.keySet();
+        for(Vertex i : vertexes){
+            path.put(i.getId(), i.getId() == start.getId() ? "" : Integer.toString(start.getId()));
         }
         return path;
     }
-
-    public Integer getMinPath(Vertex start, Vertex end, ArrayList<Integer> destinations, ArrayList<Boolean> visited,
-            Integer valuePath, ArrayList<String> path) throws UnsupportedOperationException {
+    // переделать под map
+    public Integer getMinPath(Vertex start, Vertex end, TreeMap<Integer, Integer> destinations, TreeMap<Integer, Boolean> visited,
+            Integer valuePath, TreeMap<Integer, String> path) throws UnsupportedOperationException {
         TreeSet<Line> tryToMakeLess = this.matrix.get(start);
         Iterator<Line> iterator = tryToMakeLess.iterator();
         while (iterator.hasNext()) {
             Line curLine = iterator.next();
             if(valuePath + curLine.getWeight() < destinations.get(curLine.getEndVertex().getId())){
                 if(visited.get(curLine.getEndVertex().getId()) == false){
-                    destinations.set(curLine.getEndVertex().getId(), valuePath + curLine.getWeight());
-                    path.set(curLine.getEndVertex().getId(), Integer.toString(curLine.getStartVertex().getId()));
+                    destinations.put(curLine.getEndVertex().getId(), valuePath + curLine.getWeight());
+                    path.put(curLine.getEndVertex().getId(), Integer.toString(curLine.getStartVertex().getId()));
                 }else{
                     throw new UnsupportedOperationException("This graph has negative cycle");
                 }
             }
         }
-        //Iterator<Integer> findMin = destinations.listIterator();
         Integer min = Integer.MAX_VALUE;
         int indexOfMin = start.getId();
-        for(int i = 0; i < destinations.size(); i++){
+
+        // исправить под map
+        for(Integer i : destinations.keySet()){
             if(destinations.get(i) < min && visited.get(i) == false){
                 min = destinations.get(i);
                 indexOfMin = i;
@@ -216,7 +219,7 @@ public class Graph {
             throw new UnsupportedOperationException("No path to this vertex");
         }
         valuePath = min;
-        visited.set(indexOfMin, true);
+        visited.put(indexOfMin, true);
         Set<Vertex> vertexes = this.matrix.keySet();
         Iterator<Vertex> vertIterator = vertexes.iterator();
         while(vertIterator.hasNext()){
@@ -232,8 +235,8 @@ public class Graph {
         valuePath = getMinPath(start, end, destinations, visited, valuePath, path);
         return valuePath;
     }
-
-    public ArrayList<Vertex> minPathArray(Vertex start, Vertex end, ArrayList<String> path){
+    // переделать под map
+    public ArrayList<Vertex> minPathArray(Vertex start, Vertex end, TreeMap<Integer, String> path){
         String minPath = minPathString(start, end, path);
         String[] sequence = minPath.split(" ");
         ArrayList<Vertex> min = new ArrayList<Vertex>();
@@ -247,8 +250,8 @@ public class Graph {
         }
         return min;
     }
-
-    private String minPathString(Vertex start, Vertex end, ArrayList<String> path){
+    // переделать под map
+    private String minPathString(Vertex start, Vertex end, TreeMap<Integer, String> path){
         int index = end.getId();
         StringBuilder minPath = new StringBuilder(Integer.toString(end.getId()));
         minPath.append(" ");
