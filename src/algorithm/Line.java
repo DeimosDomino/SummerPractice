@@ -1,5 +1,8 @@
 package algorithm;
-public class Line implements Comparable<Line>{
+
+import java.io.Serializable;
+
+public class Line implements Comparable<Line>, Serializable{
     private final int weight;
     private final Vertex startVertex;
     private final Vertex endVertex;

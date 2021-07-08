@@ -1,5 +1,6 @@
 package algorithm;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.HashSet;
@@ -7,7 +8,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class Graph {
+public class Graph 
+extends Object implements Serializable{
     private TreeMap<Vertex, TreeSet<Line>> matrix;
 
     public Graph() {

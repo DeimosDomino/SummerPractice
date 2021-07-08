@@ -1,5 +1,8 @@
 package algorithm;
-public class Vertex implements Comparable<Vertex>{
+
+import java.io.Serializable;
+
+public class Vertex implements Comparable<Vertex>, Serializable{
     private final int idOfVertex;
     private Coordinates cordOfVertex;
     private final static double DIAMETER = 30;

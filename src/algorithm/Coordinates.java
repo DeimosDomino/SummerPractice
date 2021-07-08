@@ -1,5 +1,8 @@
 package algorithm;
-public class Coordinates {
+
+import java.io.Serializable;
+
+public class Coordinates implements Serializable {
     private double x;
     private double y;
 

@@ -1,8 +1,13 @@
-package algorithm;
-import java.util.ArrayList;
-import java.util.TreeMap;
+package GraphWriterReader;
 
-public class Main {
+import algorithm.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashSet;
+
+public class Main{
+    
     public static void main(String[] args){
         Vertex a = new Vertex(0, 0, 0);
         Vertex b = new Vertex(1, 31, 0);
@@ -23,19 +28,13 @@ public class Main {
         graph.addLine(linebc);
         graph.addLine(linebd);
         graph.addLine(linecd);
-        TreeMap<Integer, Integer> list = graph.makeStartArrayList(a);
-        TreeMap<Integer, Boolean> visited = graph.makeVisitedList(a);
-        TreeMap<Integer, String> path = graph.makePathList(a);
-        Integer valuePath = 0;
-        try{
-            valuePath = graph.getMinPath(a, d, list, visited, valuePath, path);
-            System.out.println(valuePath);
-        }catch(UnsupportedOperationException error){
-            System.out.println(error.getMessage());
+        HashSet<Line> lines = graph.allLines();
+        for(Line line : lines){
+            System.out.println(line.getStartVertex().getX() + " " + line.getStartVertex().getY() + "    " + line.getEndVertex().getX() + " " + line.getEndVertex().getY());
         }
-        ArrayList<Vertex> minPath = graph.minPathArray(a, d, path);
-        System.out.println(minPath);
-
+        Path path = Paths.get("myFile");
+        GraphWriterReader.write(graph, path);
+        
     }
 
 }
