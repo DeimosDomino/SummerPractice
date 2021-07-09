@@ -20,15 +20,13 @@ public class GraphWriterReader{
     public static void write(Graph graph, Path path){
         
         try{
+            if(Files.exists(path))
+                Files.delete(path);
             Files.createFile(path);
             FileOutputStream fos = new FileOutputStream(path.toFile());
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(graph);
-        
-        //Handling situation in which file already exists
-        }catch(FileAlreadyExistsException faee){                                       
-            System.err.println("File \"" + path.toString() + "\" already exists");
-        
+                
         
         }catch(Exception e){
             System.err.println(e);
@@ -45,7 +43,7 @@ public class GraphWriterReader{
         Path path = Paths.get(pathStr);
         write(graph, path);
     }
-
+    //reading a graph from the file
     public static Graph read(Path path){
         FileInputStream fis;
         ObjectInputStream ois;
@@ -56,8 +54,6 @@ public class GraphWriterReader{
             fis = new FileInputStream(path.toFile());
             ois = new ObjectInputStream(fis);
             return (Graph)ois.readObject();
-        }catch(IOException ioe){
-            System.out.println(ioe);
         }catch(Exception e){
             System.err.println(e);
         }
