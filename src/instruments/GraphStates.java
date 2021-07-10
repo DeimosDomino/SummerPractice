@@ -10,6 +10,7 @@ public class GraphStates {
     private int curIndex = -1;
     public GraphStates(){
         this.states = new ArrayList<GraphState>();
+        this.add(new Graph());
     }
 
     public Graph next(){
@@ -18,8 +19,13 @@ public class GraphStates {
         return states.get(curIndex).get();
     }
 
-    public GraphState getCur(){
-        return this.states.get(curIndex);
+    public Graph getCur(){
+        try{
+            return this.states.get(curIndex).get();
+        }catch(IndexOutOfBoundsException e){
+            return null;
+        }
+    
     }
 
     public Graph prev(){
