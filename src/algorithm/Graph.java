@@ -16,6 +16,9 @@ public class Graph extends Object implements Serializable {
     }
 
     public boolean addVertex(Vertex newNode) {
+        if(newNode == null){
+            return false;
+        }
         Iterator<Vertex> vertexes = this.matrix.keySet().iterator();
         if (this.matrix.isEmpty()) {
             this.matrix.put(newNode, new TreeSet<Line>());
@@ -54,11 +57,9 @@ public class Graph extends Object implements Serializable {
     }
 
     public boolean addLine(Line newLine) {
-        // проверка на петли
         if (newLine.getStartVertex().equals(newLine.getEndVertex())) {
             return false;
         }
-        // конец проверки
         if (this.matrix.get(newLine.getStartVertex()) != null) {
             Iterator<Line> iterator = this.matrix.get(newLine.getStartVertex()).iterator();
             if (iterator.hasNext()) {
@@ -98,12 +99,17 @@ public class Graph extends Object implements Serializable {
     }
 
     public Line getLine(Vertex start, Vertex end) {
+        if(start == null || end == null){
+            return null;
+        }
         TreeSet<Line> lines = this.matrix.get(start);
-        Iterator<Line> iter = lines.iterator();
-        while (iter.hasNext()) {
-            Line tryLine = iter.next();
-            if (tryLine.equals(new Line(0, start, end))) {
-                return tryLine;
+        if(!lines.isEmpty()){
+            Iterator<Line> iter = lines.iterator();
+            while (iter.hasNext()) {
+                Line tryLine = iter.next();
+                if (tryLine.equals(new Line(0, start, end))) {
+                    return tryLine;
+                }
             }
         }
         return null;
@@ -150,23 +156,25 @@ public class Graph extends Object implements Serializable {
 
     public void deleteVertex(double x, double y) {
         Vertex toDelete = getVertex(x, y);
-        this.matrix.remove(toDelete);
-        Set<Vertex> vertexes = this.matrix.keySet();
-        Line deleteLine = null;
-        if (vertexes != null && !vertexes.isEmpty()) {
-            Iterator<Vertex> iterator = vertexes.iterator();
-            while (iterator.hasNext()) {
-                Set<Line> allLines = this.matrix.get(iterator.next());
-                if (allLines != null && !allLines.isEmpty()) {
-                    Iterator<Line> lines = allLines.iterator();
-                    while (lines.hasNext()) {
-                        Line tryToDelete = lines.next();
-                        if (tryToDelete.getEndVertex().equals(toDelete)) {
-                            deleteLine = tryToDelete;
+        if(toDelete != null){
+            this.matrix.remove(toDelete);
+            Set<Vertex> vertexes = this.matrix.keySet();
+            Line deleteLine = null;
+            if (vertexes != null && !vertexes.isEmpty()) {
+                Iterator<Vertex> iterator = vertexes.iterator();
+                while (iterator.hasNext()) {
+                    Set<Line> allLines = this.matrix.get(iterator.next());
+                    if (allLines != null && !allLines.isEmpty()) {
+                        Iterator<Line> lines = allLines.iterator();
+                        while (lines.hasNext()) {
+                            Line tryToDelete = lines.next();
+                            if (tryToDelete.getEndVertex().equals(toDelete)) {
+                                deleteLine = tryToDelete;
+                            }
                         }
-                    }
-                    if (deleteLine != null) {
-                        allLines.remove(deleteLine);
+                        if (deleteLine != null) {
+                            allLines.remove(deleteLine);
+                        }
                     }
                 }
             }
@@ -182,7 +190,7 @@ public class Graph extends Object implements Serializable {
         return path;
     }
 
-    public Integer getMinPath(Vertex end, TreeMap<Integer, Integer> destinations, TreeMap<Integer, String> path)
+    public Integer getMinPath(Vertex end, TreeMap<Integer, Integer> destinations, TreeMap<Integer, String> path, ArrayList<Line> iterationLine, ArrayList<TreeMap<Vertex, Integer>> iterationDestination)
             throws UnsupportedOperationException {
         Set<Vertex> vertexes = this.matrix.keySet();
         for (int count = 0; count < this.getNumOFVertexes() - 1; count++) {
@@ -190,10 +198,16 @@ public class Graph extends Object implements Serializable {
                 TreeSet<Line> lines = this.matrix.get(cur);
                 for (Line adding : lines) {
                     if (destinations.get(adding.getEndVertex().getId()) > adding.getWeight()
-                            + destinations.get(adding.getStartVertex().getId())) {
+                            + destinations.get(adding.getStartVertex().getId()) && destinations.get(adding.getStartVertex().getId()) != Integer.MAX_VALUE) {
                         destinations.put(adding.getEndVertex().getId(),
                                 adding.getWeight() + destinations.get(adding.getStartVertex().getId()));
                         path.put(adding.getEndVertex().getId(), Integer.toString(adding.getStartVertex().getId()));
+                        iterationLine.add(adding);
+                        TreeMap<Vertex, Integer> iteration = new TreeMap<Vertex, Integer>();
+                        for(Vertex vertex : this.matrix.keySet()){
+                            iteration.put(vertex, destinations.get(vertex.getId()));
+                        }
+                        iterationDestination.add(iteration);
                     }
                 }
             }
@@ -202,7 +216,7 @@ public class Graph extends Object implements Serializable {
             TreeSet<Line> lines = this.matrix.get(cur);
             for (Line adding : lines) {
                 if (destinations.get(adding.getEndVertex().getId()) > adding.getWeight()
-                        + destinations.get(adding.getStartVertex().getId())) {
+                        + destinations.get(adding.getStartVertex().getId()) && destinations.get(adding.getStartVertex().getId()) != Integer.MAX_VALUE) {
                     throw new UnsupportedOperationException("This graph has negative cycle");
                 }
             }
@@ -210,7 +224,7 @@ public class Graph extends Object implements Serializable {
         if(destinations.get(end.getId()) < Integer.MAX_VALUE){
             return destinations.get(end.getId());
         }else{
-            throw new UnsupportedOperationException("There is no path to this veretex");
+            throw new UnsupportedOperationException("There is no path to this vertex");
         }
         
     }
@@ -234,17 +248,16 @@ public class Graph extends Object implements Serializable {
     private String minPathString(Vertex start, Vertex end, TreeMap<Integer, String> path) {
         int index = end.getId();
         StringBuilder minPath = new StringBuilder(Integer.toString(end.getId()));
-        minPath.append(" ");
+        minPath.insert(0, " ");
         while (index != start.getId()) {
-            minPath.append(path.get(index));
-            minPath.append(" ");
+            minPath.insert(0,path.get(index));
+            minPath.insert(0, " ");
             try {
                 index = Integer.parseInt(path.get(index));
             } catch (NumberFormatException r) {
             }
         }
-        minPath.deleteCharAt(minPath.length() - 1);
-        minPath.reverse();
+        minPath.deleteCharAt(0);
         String min = new String(minPath);
         return min;
     }
